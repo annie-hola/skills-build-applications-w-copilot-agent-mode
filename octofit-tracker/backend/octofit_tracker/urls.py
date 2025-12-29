@@ -13,9 +13,38 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
+from django.http import JsonResponse
+from pymongo import MongoClient
+
+def get_collection_data(collection):
+    client = MongoClient('localhost', 27017)
+    db = client['octofit_db']
+    data = list(db[collection].find({}, {'_id': 0}))
+    return JsonResponse(data, safe=False)
+
+def users_api(request):
+    return get_collection_data('users')
+
+def teams_api(request):
+    return get_collection_data('teams')
+
+def activities_api(request):
+    return get_collection_data('activities')
+
+def leaderboard_api(request):
+    return get_collection_data('leaderboard')
+
+def workouts_api(request):
+    return get_collection_data('workouts')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/users/', users_api),
+    path('api/teams/', teams_api),
+    path('api/activities/', activities_api),
+    path('api/leaderboard/', leaderboard_api),
+    path('api/workouts/', workouts_api),
 ]
